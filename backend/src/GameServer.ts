@@ -1,18 +1,37 @@
 import express, { Application } from 'express'
 
-import socketIO from 'socket.io'
+import socketIO, { Server as SocketIOServer } from 'socket.io'
+
 import cors from 'cors'
 
-import { Server, createServer } from 'http'
-import { GameEvent, Mark } from './constants'
-import { Player } from 'types'
+import { Server as ServerHTTP, createServer } from 'http'
+
+enum Mark {
+  X = 'x',
+  O = 'o'
+}
+
+export enum GameEvent {
+  CONNECT = 'connect',
+  SEARCH_GAME = 'searchGame ',
+  START_GAME = 'startGame',
+  ON_MOVE = 'onMove',
+  ON_WINNER = 'onWinner',
+  UPDATE_BOARD = 'updateBoard'
+}
+
+export interface Player {
+  name: string;
+  id: string;
+  mark?: Mark
+}
 
 class GameServer {
   public static readonly PORT: number = 3333;
 
   private _app: Application;
-  private server: Server;
-  private io: SocketIO.Server;
+  private server: ServerHTTP;
+  private io: SocketIOServer;
   private port: string | number;
 
   private lobby: Player[];
@@ -25,12 +44,8 @@ class GameServer {
     this.lobby = []
     this.rooms = []
     this.server = createServer(this._app)
-    this.initSocket()
-    this.listen()
-  }
-
-  private initSocket (): void {
     this.io = socketIO(this.server)
+    this.listen()
   }
 
   private hasWinner (board: string[][]): string | false {

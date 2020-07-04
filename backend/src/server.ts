@@ -1,5 +1,5 @@
-import GameServer from "./GameServer";
+import GameServer from './GameServer'
 
-let app = new GameServer().app;
+const app = new GameServer().app
 
-export { app };
+export { app }

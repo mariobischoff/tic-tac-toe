@@ -3,11 +3,25 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
+exports.GameEvent = void 0;
 const express_1 = __importDefault(require("express"));
 const socket_io_1 = __importDefault(require("socket.io"));
 const cors_1 = __importDefault(require("cors"));
 const http_1 = require("http");
-const constants_1 = require("./constants");
+var Mark;
+(function (Mark) {
+    Mark["X"] = "x";
+    Mark["O"] = "o";
+})(Mark || (Mark = {}));
+var GameEvent;
+(function (GameEvent) {
+    GameEvent["CONNECT"] = "connect";
+    GameEvent["SEARCH_GAME"] = "searchGame ";
+    GameEvent["START_GAME"] = "startGame";
+    GameEvent["ON_MOVE"] = "onMove";
+    GameEvent["ON_WINNER"] = "onWinner";
+    GameEvent["UPDATE_BOARD"] = "updateBoard";
+})(GameEvent = exports.GameEvent || (exports.GameEvent = {}));
 class GameServer {
     constructor() {
         this._app = express_1.default();
@@ -16,11 +30,8 @@ class GameServer {
         this.lobby = [];
         this.rooms = [];
         this.server = http_1.createServer(this._app);
-        this.initSocket();
-        this.listen();
-    }
-    initSocket() {
         this.io = socket_io_1.default(this.server);
+        this.listen();
     }
     hasWinner(board) {
         const boardDiagonal = [];
@@ -69,8 +80,8 @@ class GameServer {
                     const roomId = this.lobby[0].id;
                     socket.join(roomId);
                     const players = [
-                        { id: this.lobby[0].id, name: this.lobby[0].name, mark: constants_1.Mark.O },
-                        { id: this.lobby[1].id, name: this.lobby[1].name, mark: constants_1.Mark.X }
+                        { id: this.lobby[0].id, name: this.lobby[0].name, mark: Mark.O },
+                        { id: this.lobby[1].id, name: this.lobby[1].name, mark: Mark.X }
                     ];
                     const board = Array(3).fill('').map(() => Array(3).fill(''));
                     this.rooms.push({ roomId, players, board });
