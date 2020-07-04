@@ -8,7 +8,7 @@ import './assets/styles/index.css'
 import VueSocketIOExt from 'vue-socket.io-extended'
 import io from 'socket.io-client'
 
-const socket = io('http://localhost:3333')
+const socket = io('heroku git:remote -a tic-tac-toe-dev:3333')
 
 Vue.use(VueSocketIOExt, socket)
 
