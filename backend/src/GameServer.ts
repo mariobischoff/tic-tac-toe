@@ -1,8 +1,8 @@
 import express, { Application } from 'express'
 
-import socketIO, { Server as SocketIOServer } from 'socket.io'
-
 import cors from 'cors'
+
+import socketIO, { Server as SocketIOServer } from 'socket.io'
 
 import { Server as ServerHTTP, createServer } from 'http'
 
@@ -39,6 +39,7 @@ class GameServer {
 
   constructor () {
     this._app = express()
+    this._app.use(cors())
     this.port = process.env.PORT || GameServer.PORT
     this._app.use(cors())
     this.lobby = []
