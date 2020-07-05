@@ -47,9 +47,6 @@ export default {
   sockets: {
     updateBoard (board) {
       this.board = board
-    },
-    onWinner (winner) {
-      console.log(winner)
     }
   }
 }

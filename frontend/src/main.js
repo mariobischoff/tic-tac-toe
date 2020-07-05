@@ -9,6 +9,7 @@ import VueSocketIOExt from 'vue-socket.io-extended'
 import io from 'socket.io-client'
 
 const socket = io('https://tic-tac-toe-dev.herokuapp.com')
+// const socket = io('localhost:3333')
 
 Vue.use(VueSocketIOExt, socket)
 

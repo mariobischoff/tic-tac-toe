@@ -6,12 +6,8 @@
     </template>
 
     <template v-else>
-      <div class="flex flex-col justify-center">
-        <!-- <div class="flex justify-between">
-          <span class="tracking-widest text-green-500 font-black">{{ players[0].name }}</span>
-          <span class="tracking-widest text-red-500 font-black">{{ players[1].name }}</span>
-        </div> -->
-        <Scoreboard />
+      <div class="flex flex-col justify-center sm:w-8/12 lg:w-1/2" >
+        <Scoreboard :players="players" class="mb-8"/>
         <Board :players="players" :name="name" :roomId="roomId"/>
       </div>
     </template>
@@ -36,7 +32,7 @@ export default {
     return {
       name: '',
       roomId: '',
-      players: '',
+      players: [],
       gameStarted: false
     }
   },
@@ -46,6 +42,12 @@ export default {
       this.roomId = roomId
       this.players = players
       this.gameStarted = true
+    }
+  },
+  sockets: {
+    onWinner (players) {
+      this.players = players
+      console.log(this.players)
     }
   }
 }

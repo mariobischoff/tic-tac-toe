@@ -6,6 +6,8 @@ import socketIO, { Server as SocketIOServer } from 'socket.io'
 
 import { Server as ServerHTTP, createServer } from 'http'
 
+import Board from './Board'
+
 enum Mark {
   X = 'x',
   O = 'o'
@@ -23,7 +25,8 @@ export enum GameEvent {
 export interface Player {
   name: string;
   id: string;
-  mark?: Mark
+  mark?: Mark;
+  point: number;
 }
 
 class GameServer {
@@ -49,41 +52,6 @@ class GameServer {
     this.listen()
   }
 
-  private hasWinner (board: string[][]): string | false {
-    const boardDiagonal = []
-    for (const i in board) {
-      // verifyLine
-      if (this.hasCompleteLine(board[i])) {
-        return board[i][0]
-      }
-      // verifyColumn
-      const boardColumn = board.map(x => x[i])
-
-      if (this.hasCompleteLine(boardColumn)) {
-        return boardColumn[0]
-      }
-      // diagonal
-      for (const j in board[i]) {
-        if (i === j) {
-          boardDiagonal.push(board[i][j])
-        }
-      }
-    }
-    if (this.hasCompleteLine(boardDiagonal)) {
-      return boardDiagonal[0]
-    }
-    return false
-  }
-
-  private hasCompleteLine (line: string[]): boolean {
-    let numberOfIdendicalMarks = 0
-    line.reduce((pre, cur) => {
-      if (cur === pre) numberOfIdendicalMarks++
-      return cur
-    }, line[0])
-    return numberOfIdendicalMarks === line.length
-  }
-
   private listen (): void {
     this.server.listen(this.port, () => {
       console.log('Running server on port %s', this.port)
@@ -94,7 +62,7 @@ class GameServer {
 
       // search for game
       socket.on('searchGame', (name: string) => {
-        const player: Player = { id, name }
+        const player: Player = { id, name, point: 0 }
 
         this.lobby.push(player)
 
@@ -104,11 +72,11 @@ class GameServer {
           socket.join(roomId)
 
           const players: Player[] = [
-            { id: this.lobby[0].id, name: this.lobby[0].name, mark: Mark.O },
-            { id: this.lobby[1].id, name: this.lobby[1].name, mark: Mark.X }
+            { id: this.lobby[0].id, name: this.lobby[0].name, mark: Mark.O, point: 0 },
+            { id: this.lobby[1].id, name: this.lobby[1].name, mark: Mark.X, point: 0 }
           ]
 
-          const board: string[][] = Array(3).fill('').map(() => Array(3).fill(''))
+          const board: Board = new Board()
 
           this.rooms.push({ roomId, players, board })
 
@@ -121,15 +89,20 @@ class GameServer {
       socket.on('onMove', ({ roomId, position, mark }) => {
         const { board, players } = this.rooms.find(room => room.roomId === roomId)
 
-        board[position.rowI][position.colI] = mark
+        board.setMark(position.rowI, position.colI, mark)
 
-        const markWinner = this.hasWinner(board)
+        const markWinner = board.hasWinner()
+
         if (markWinner) {
-          const { name } = players.filter((player: Player) => player.mark === markWinner)[0]
+          const player: Player = players.filter((player: Player) => player.mark === markWinner)[0]
+          player.point += 1
 
-          this.io.in(roomId).emit('onWinner', name)
+          board.resetBoard()
+
+          this.io.in(roomId).emit('onWinner', players)
         }
-        this.io.in(roomId).emit('updateBoard', board)
+
+        this.io.in(roomId).emit('updateBoard', board.board)
       })
     })
   }

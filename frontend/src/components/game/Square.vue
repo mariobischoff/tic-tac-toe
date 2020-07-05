@@ -2,8 +2,8 @@
   <transition>
     <button
       @click="$emit('press')"
-      class="w-24 h-24 m-2 text-center text-green-600 text-6xl rounded bg-indigo-100 shadow-lg"
-      :style="mark === 'o'? 'color: red' : 'color: green'"
+      :class="{ 'text-green-600': mark === 'o' }"
+      class="w-24 h-24 m-2 text-center text-red-600 text-6xl rounded bg-indigo-100 shadow-lg"
     >
       {{ mark }}
     </button>
