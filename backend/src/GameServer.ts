@@ -41,15 +41,18 @@ class GameServer {
   private rooms: any[];
 
   constructor () {
-    this._app = express()
-    this._app.use(cors())
     this.port = process.env.PORT || GameServer.PORT
-    this._app.use(cors())
     this.lobby = []
     this.rooms = []
+    this._app = express()
+    this.configApp()
     this.server = createServer(this._app)
     this.io = socketIO(this.server)
     this.listen()
+  }
+
+  private configApp (): void {
+    this._app.use(cors())
   }
 
   private listen (): void {
