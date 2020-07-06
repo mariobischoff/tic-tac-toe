@@ -1,7 +1,7 @@
 <template>
   <footer class="flex-col justify-center align-middle bg-indigo-600 p-2">
     <div class="flex justify-center">
-      <span>Devloped by <strong> Mario</strong></span>
+      <span>Developed by <strong> Mario</strong></span>
     </div>
     <div class="flex justify-center">
       <span class="mr-2"> with</span>
