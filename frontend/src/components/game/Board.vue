@@ -1,11 +1,12 @@
 <template>
   <div class="flex flex-col">
-    <div v-for="(i, rowIndex) in board" :key="rowIndex" class="flex justify-center">
+    <div
+      v-for="(i, rowIndex) in board"
+      :key="rowIndex"
+      class="flex justify-center"
+    >
       <div v-for="(j, colIndex) in i" :key="colIndex">
-        <square
-          :mark="j"
-          @press="makeMove(rowIndex, colIndex)"
-        />
+        <square :mark="j" @press="makeMove(rowIndex, colIndex)" />
       </div>
     </div>
   </div>
@@ -26,7 +27,11 @@ export default {
   },
   data () {
     return {
-      board: [[' ', ' ', ' '], [' ', ' ', ' '], [' ', ' ', ' ']]
+      board: [
+        [' ', ' ', ' '],
+        [' ', ' ', ' '],
+        [' ', ' ', ' ']
+      ]
     }
   },
   methods: {

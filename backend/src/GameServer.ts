@@ -10,7 +10,7 @@ import Board from './Board'
 
 enum Mark {
   X = 'x',
-  O = 'o'
+  O = 'o',
 }
 
 export enum GameEvent {
@@ -19,7 +19,7 @@ export enum GameEvent {
   START_GAME = 'startGame',
   ON_MOVE = 'onMove',
   ON_WINNER = 'onWinner',
-  UPDATE_BOARD = 'updateBoard'
+  UPDATE_BOARD = 'updateBoard',
 }
 
 export interface Player {
@@ -27,6 +27,7 @@ export interface Player {
   id: string;
   mark?: Mark;
   point: number;
+  turn: boolean;
 }
 
 class GameServer {
@@ -62,6 +63,7 @@ class GameServer {
 
     this.io.on('connect', (socket: SocketIO.Socket) => {
       const { id } = socket
+      const lastMark = ''
 
       // search for game
       socket.on('searchGame', (name: string) => {
@@ -75,8 +77,20 @@ class GameServer {
           socket.join(roomId)
 
           const players: Player[] = [
-            { id: this.lobby[0].id, name: this.lobby[0].name, mark: Mark.O, point: 0 },
-            { id: this.lobby[1].id, name: this.lobby[1].name, mark: Mark.X, point: 0 }
+            {
+              id: this.lobby[0].id,
+              name: this.lobby[0].name,
+              mark: Mark.O,
+              point: 0,
+              turn: true
+            },
+            {
+              id: this.lobby[1].id,
+              name: this.lobby[1].name,
+              mark: Mark.X,
+              point: 0,
+              turn: false
+            }
           ]
 
           const board: Board = new Board()
@@ -89,23 +103,33 @@ class GameServer {
         }
       })
 
-      socket.on('onMove', ({ roomId, position, mark }) => {
-        const { board, players } = this.rooms.find(room => room.roomId === roomId)
+      socket.on('onMove', ({ roomId, position, mark, turn }) => {
+        const { board, players } = this.rooms.find(
+          (room) => room.roomId === roomId
+        )
 
-        board.setMark(position.rowI, position.colI, mark)
+        const player = players.filter((player) => player.mark == mark)[0]
 
-        const markWinner = board.hasWinner()
+        if (player.turn) {
+          players[0].turn = !players[0].turn
+          players[1].turn = !players[1].turn
+          board.setMark(position.rowI, position.colI, mark)
 
-        if (markWinner) {
-          const player: Player = players.filter((player: Player) => player.mark === markWinner)[0]
-          player.point += 1
+          const markWinner = board.hasWinner()
 
-          board.resetBoard()
+          if (markWinner) {
+            const player: Player = players.filter(
+              (player: Player) => player.mark === markWinner
+            )[0]
+            player.point += 1
 
-          this.io.in(roomId).emit('onWinner', players)
+            board.resetBoard()
+
+            this.io.in(roomId).emit('onWinner', players)
+          }
+
+          this.io.in(roomId).emit('updateBoard', board.board)
         }
-
-        this.io.in(roomId).emit('updateBoard', board.board)
       })
     })
   }
