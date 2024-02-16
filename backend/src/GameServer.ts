@@ -27,7 +27,7 @@ export interface Player {
   id: string;
   mark?: Mark;
   point: number;
-  turn: boolean;
+  turn?: boolean;
 }
 
 class GameServer {
@@ -108,7 +108,7 @@ class GameServer {
           (room) => room.roomId === roomId
         )
 
-        const player = players.filter((player) => player.mark == mark)[0]
+        const player = players.filter((player: any) => player.mark == mark)[0]
 
         if (player.turn) {
           players[0].turn = !players[0].turn
